@@ -197,25 +197,17 @@ export const MealPlanPage = () => {
   }, [notificationsEnabled])
 
   const updateDayPlan = (dayNumber: number, updater: (dayPlan: DayPlan) => DayPlan): boolean => {
-    let changed = false
+    const dayIndex = weekPlan.days.findIndex((item) => item.day === dayNumber)
+    if (dayIndex < 0) return false
 
-    setWeekPlan((currentWeek) => {
-      const dayIndex = currentWeek.days.findIndex((item) => item.day === dayNumber)
-      if (dayIndex < 0) return currentWeek
+    const currentDay = weekPlan.days[dayIndex]
+    const nextDay = updater(currentDay)
+    if (nextDay === currentDay) return false
 
-      const currentDay = currentWeek.days[dayIndex]
-      const nextDay = updater(currentDay)
-
-      if (nextDay === currentDay) return currentWeek
-
-      changed = true
-
-      const nextDays = [...currentWeek.days]
-      nextDays[dayIndex] = nextDay
-      return { days: nextDays }
-    })
-
-    return changed
+    const nextDays = [...weekPlan.days]
+    nextDays[dayIndex] = nextDay
+    setWeekPlan({ days: nextDays })
+    return true
   }
 
   const handleShuffleMeal = (dayNumber: number, slot: MealSlot) => {
@@ -290,22 +282,15 @@ export const MealPlanPage = () => {
   }
 
   const handleShuffleWeek = () => {
-    let changed = false
-
-    setWeekPlan((currentWeek) => {
-      const nextWeek = shuffleWeek(currentWeek)
-      const didChange = nextWeek.days.some((day, index) => day !== currentWeek.days[index])
-      if (!didChange) return currentWeek
-
-      changed = true
-      return nextWeek
-    })
+    const nextWeek = shuffleWeek(weekPlan)
+    const changed = nextWeek.days.some((day, index) => day !== weekPlan.days[index])
 
     if (!changed) {
       toast.info('Todas as refeições estão fixadas')
       return
     }
 
+    setWeekPlan(nextWeek)
     toast.success('Semana completa embaralhada')
   }
 
