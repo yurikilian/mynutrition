@@ -39,6 +39,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Derive app password hash
+        env:
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+        run: |
+          if [ -z "$APP_PASSWORD" ]; then
+            echo "Missing APP_PASSWORD repository secret."
+            exit 1
+          fi
+          APP_PASSWORD_HASH="$(printf '%s' "$APP_PASSWORD" | sha256sum | awk '{print $1}')"
+          echo "VITE_APP_PASSWORD_HASH=$APP_PASSWORD_HASH" >> "$GITHUB_ENV"
+
       - name: Build
         run: pnpm build
 
