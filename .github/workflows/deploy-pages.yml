@@ -42,13 +42,23 @@ jobs:
       - name: Derive app password hash
         env:
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+          APP_PASSWORD_HASH: ${{ secrets.APP_PASSWORD_HASH }}
         run: |
-          if [ -z "$APP_PASSWORD" ]; then
-            echo "Missing APP_PASSWORD repository secret."
+          if [ -n "$APP_PASSWORD_HASH" ]; then
+            VALUE="$(printf '%s' "$APP_PASSWORD_HASH" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')"
+          elif [ -n "$APP_PASSWORD" ]; then
+            VALUE="$(printf '%s' "$APP_PASSWORD" | sha256sum | awk '{print $1}')"
+          else
+            echo "Missing APP_PASSWORD_HASH or APP_PASSWORD repository secret."
             exit 1
           fi
-          APP_PASSWORD_HASH="$(printf '%s' "$APP_PASSWORD" | sha256sum | awk '{print $1}')"
-          echo "VITE_APP_PASSWORD_HASH=$APP_PASSWORD_HASH" >> "$GITHUB_ENV"
+
+          if ! printf '%s' "$VALUE" | grep -Eq '^[a-f0-9]{64}$'; then
+            echo "Invalid password hash format. Expected 64-char SHA-256 hex."
+            exit 1
+          fi
+
+          echo "VITE_APP_PASSWORD_HASH=$VALUE" >> "$GITHUB_ENV"
 
       - name: Build
         run: pnpm build
