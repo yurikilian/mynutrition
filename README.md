@@ -1,73 +1,129 @@
-# React + TypeScript + Vite
+# My Nutririon
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Static frontend planner for a 7-day nutrition protocol, built for fast day-to-day meal decisions with calorie-safe swaps.
 
-Currently, two official plugins are available:
+## 1) Business Understanding
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Product Goal
+Help a user follow a fixed daily target (`1670 kcal/day`) with low-friction planning and substitution, without breaking calorie constraints.
 
-## React Compiler
+### Primary User Context
+- Male, 35 years old, sedentary routine.
+- Fixed caloric target already defined.
+- Needs practical execution, not dynamic metabolic calculations.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Core Value Proposition
+- Plan is ready immediately (7 days pre-filled).
+- Every swap keeps caloric equivalence by slot.
+- Locks protect user intent during shuffle.
+- PDF exports support sharing/printing (card, day, week).
 
-## Expanding the ESLint configuration
+### Functional Scope
+- 4 meals/day:
+  - Breakfast (`250 kcal`)
+  - Lunch (`670 kcal`)
+  - Snack (`410 kcal = 250 + 90 + 70`)
+  - Dinner (`340 kcal`)
+- Interactions:
+  - Shuffle meal/day/week
+  - Manual swap by valid equivalents
+  - Lock/unlock meal
+  - Reset day or full plan
+  - Export PDF (card/day/week)
+- Persistence:
+  - State stored in `localStorage`
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### UX Principles Implemented
+- Mobile-first navigation and actions.
+- Touch-friendly controls and swipe between days.
+- Clear calorie/time indicators per meal.
+- Fast feedback via toast notifications.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 2) Developer Experience (DX)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Stack
+- React + TypeScript + Vite
+- Tailwind CSS
+- shadcn/ui + Radix primitives
+- `sonner` for toasts
+- `html2canvas` + `jsPDF` for exports
+
+### Run Locally
+```bash
+pnpm install
+pnpm dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Quality Commands
+```bash
+pnpm lint
+pnpm build
 ```
+
+### Project Structure
+```text
+src/
+  components/
+  data/
+  lib/
+  types/
+```
+
+Key files:
+- `src/components/meal-plan-page.tsx`: top-level page composition and global actions
+- `src/components/day-view.tsx`: current-day rendering and day-level actions
+- `src/components/meal-card.tsx`: meal card UI + meal-level actions
+- `src/lib/shuffle.ts`: shuffle/swap rules
+- `src/lib/kcal.ts`: calorie invariants
+- `src/lib/pdf.ts`: PDF export pipeline
+- `src/lib/storage.ts`: localStorage persistence
+
+### Business Rules for Developers
+- Do not change slot calories.
+- Snack must remain `250 + 90 + 70`.
+- Locks block both shuffle and manual swap for that slot.
+- Reset day/plan restores initial state and clears locks.
+- Shuffle must avoid immediate repetition when alternatives exist.
+
+### PDF Export Notes
+- Export modes: card/day/week.
+- Week export uses one page per day.
+- Non-exportable controls are hidden using `.no-export`.
+- Theme color compatibility is handled in export utilities.
+
+---
+
+## 3) Repository Operations
+
+### Git
+- Main branch: `main`
+- Remote: `origin` (`https://github.com/yurikilian/mynutrition.git`)
+
+### Local Codex History Tracker (SQLite)
+Database is versioned in-repo:
+- `.codex/history/history.db`
+
+Commands:
+```bash
+pnpm history:init
+pnpm history:tail
+```
+
+Manual event logging:
+```bash
+bash scripts/history/log.sh codex note "summary" "optional-ref" "optional-details"
+```
+
+Automatic commit logging:
+- Hook file: `.githooks/post-commit`
+- Enable hook path:
+```bash
+git config core.hooksPath .githooks
+```
+
+### Agent Conventions
+See:
+- `AGENTS.md`
+

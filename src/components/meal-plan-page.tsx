@@ -323,7 +323,7 @@ export const MealPlanPage = () => {
       <header className="space-y-4 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Planner Nutricional</p>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">My Nutririon</p>
             <h1 className="text-xl font-semibold leading-tight text-card-foreground sm:text-2xl md:text-3xl">Plano alimentar de 7 dias</h1>
           </div>
           <Badge className="rounded-full bg-primary px-3 py-1 text-sm font-semibold leading-none text-primary-foreground hover:bg-primary">
