@@ -75,7 +75,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
               <span className="text-sm font-medium text-card-foreground">Senha</span>
               <input
                 autoComplete="current-password"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:text-sm"
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Digite a senha"
                 type="password"

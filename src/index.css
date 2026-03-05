@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   :root {
     --background: oklch(0.9994 0.0026 106.45);
     --foreground: oklch(0.3097 0.0251 241.69);
@@ -80,6 +85,14 @@
 
   #root {
     min-height: 100vh;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
   }
 }
 
