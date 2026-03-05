@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="My Nutririon brand icon">
+  <defs>
+    <linearGradient id="bgLarge" x1="40" y1="40" x2="472" y2="472" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d97706" />
+      <stop offset="0.55" stop-color="#b45309" />
+      <stop offset="1" stop-color="#92400e" />
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.18" />
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bgLarge)" />
+
+  <g opacity="0.14" stroke="#ffffff" stroke-width="8">
+    <path d="M70 122h372" />
+    <path d="M70 186h372" />
+    <path d="M70 250h372" />
+    <path d="M70 314h372" />
+    <path d="M70 378h372" />
+  </g>
+
+  <g filter="url(#softShadow)">
+    <circle cx="256" cy="284" r="142" fill="none" stroke="#ffffff" stroke-width="24" />
+    <path d="M164 272c14 78 170 78 184 0" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-width="20" />
+
+    <path d="M210 174c40-48 97-56 138-26c-17 55-72 81-138 26Z" fill="#ffffff" />
+
+    <circle cx="390" cy="146" r="46" fill="#ffffff" />
+    <text x="390" y="163" fill="#92400e" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial" font-size="58" font-weight="800" text-anchor="middle">7</text>
+  </g>
+</svg>

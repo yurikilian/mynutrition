@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="My Nutririon icon">
+  <defs>
+    <linearGradient id="bg" x1="24" y1="24" x2="232" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d97706" />
+      <stop offset="1" stop-color="#92400e" />
+    </linearGradient>
+  </defs>
+
+  <rect width="256" height="256" rx="56" fill="url(#bg)" />
+
+  <circle cx="128" cy="142" r="66" fill="none" stroke="#ffffff" stroke-width="12" />
+  <path d="M82 136c6 37 86 37 92 0" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-width="10" />
+
+  <path d="M105 92c20-24 49-28 69-13c-8 28-36 40-69 13Z" fill="#ffffff" />
+
+  <circle cx="194" cy="68" r="22" fill="#ffffff" />
+  <text x="194" y="76" fill="#92400e" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial" font-size="26" font-weight="700" text-anchor="middle">7</text>
+</svg>
