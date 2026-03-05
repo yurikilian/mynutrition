@@ -1,5 +1,7 @@
 # My Nutririon
 
+🌐 Live: https://yurikilian.github.io/mynutrition/
+
 Static frontend planner for a 7-day nutrition protocol, built for fast day-to-day meal decisions with calorie-safe swaps.
 
 ## 1) Business Understanding
@@ -126,4 +128,3 @@ git config core.hooksPath .githooks
 ### Agent Conventions
 See:
 - `AGENTS.md`
-
