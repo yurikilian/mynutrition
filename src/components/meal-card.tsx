@@ -1,5 +1,5 @@
 import { forwardRef } from 'react'
-import { FileDown, Lock, LockOpen, Shuffle, SquarePen } from 'lucide-react'
+import { ExternalLink, FileDown, Lock, LockOpen, Shuffle, SquarePen } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,6 +11,8 @@ interface MealCardProps {
   kcal: number
   title: string
   items: string[]
+  preparationUrl?: string
+  preparationLabel?: string
   locked: boolean
   highlighted: boolean
   onShuffle: () => void
@@ -27,6 +29,8 @@ export const MealCard = forwardRef<HTMLDivElement, MealCardProps>(
       kcal,
       title,
       items,
+      preparationUrl,
+      preparationLabel,
       locked,
       highlighted,
       onShuffle,
@@ -68,6 +72,18 @@ export const MealCard = forwardRef<HTMLDivElement, MealCardProps>(
               <li key={item}>• {item}</li>
             ))}
           </ul>
+
+          {preparationUrl ? (
+            <a
+              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+              href={preparationUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <ExternalLink className="h-4 w-4" />
+              {preparationLabel ?? 'Ver preparo'}
+            </a>
+          ) : null}
 
           <div className="no-export grid grid-cols-2 gap-2 pt-1 sm:flex sm:flex-wrap">
             <Button className="h-10 w-full justify-start whitespace-normal text-left sm:h-9 sm:w-auto sm:justify-center" onClick={onShuffle} size="sm" variant="outline">

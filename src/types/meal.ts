@@ -9,6 +9,8 @@ export interface MealOption {
   kcal: number
   items: string[]
   tags?: string[]
+  preparationUrl?: string
+  preparationLabel?: string
 }
 
 export interface LunchSelection {
@@ -51,6 +53,8 @@ export interface ResolvedMeal {
   title: string
   kcal: number
   items: string[]
+  preparationUrl?: string
+  preparationLabel?: string
 }
 
 export interface MealCatalog {

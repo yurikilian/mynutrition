@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type TouchEvent } from 'react'
-import { RefreshCcw, RotateCcw } from 'lucide-react'
+import { Bell, BellOff, ExternalLink, RefreshCcw, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { DayTabs } from '@/components/day-tabs'
@@ -16,6 +16,11 @@ import {
 } from '@/data/meal-options'
 import { cloneWeekPlan, getInitialDayPlan, initialWeekPlan } from '@/data/initial-week-plan'
 import { exportWeekToPdf } from '@/lib/pdf'
+import {
+  getNextReminderDate,
+  loadMealNotificationsEnabled,
+  saveMealNotificationsEnabled,
+} from '@/lib/notifications'
 import { shuffleDay, shuffleMeal, shuffleWeek, swapMealEquivalent } from '@/lib/shuffle'
 import { loadWeekPlan, saveWeekPlan } from '@/lib/storage'
 import type { DayPlan, MealSlot, SwapMealEquivalentParams, WeekPlan } from '@/types/meal'
@@ -72,6 +77,17 @@ const StaticDaySection = ({ dayPlan, dayRef }: StaticDaySectionProps) => {
                     <li key={item}>• {item}</li>
                   ))}
                 </ul>
+                {meal.preparationUrl ? (
+                  <a
+                    className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                    href={meal.preparationUrl}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    {meal.preparationLabel ?? 'Ver preparo'}
+                  </a>
+                ) : null}
               </CardContent>
             </Card>
           )
@@ -85,8 +101,25 @@ export const MealPlanPage = () => {
   const [weekPlan, setWeekPlan] = useState<WeekPlan>(() => loadWeekPlan())
   const [tabValue, setTabValue] = useState('day-1')
   const [swipeAnimation, setSwipeAnimation] = useState<'from-left' | 'from-right' | null>(null)
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
+    const isEnabled = loadMealNotificationsEnabled()
+    if (!isEnabled) return false
+    if (typeof window === 'undefined' || !('Notification' in window)) return false
+    if (Notification.permission !== 'granted') {
+      saveMealNotificationsEnabled(false)
+      return false
+    }
+    return true
+  })
   const swipeStartRef = useRef<{ x: number; y: number } | null>(null)
   const swipeAnimationTimeoutRef = useRef<number | null>(null)
+  const notificationsEnabledRef = useRef(notificationsEnabled)
+  const notificationTimersRef = useRef<Record<MealSlot, number | null>>({
+    breakfast: null,
+    lunch: null,
+    snack: null,
+    dinner: null,
+  })
   const weekExportRefs = useRef<Record<number, HTMLDivElement | null>>({
     1: null,
     2: null,
@@ -97,6 +130,15 @@ export const MealPlanPage = () => {
     7: null,
   })
 
+  const clearNotificationTimers = () => {
+    slotOrder.forEach((slot) => {
+      const timerId = notificationTimersRef.current[slot]
+      if (!timerId) return
+      window.clearTimeout(timerId)
+      notificationTimersRef.current[slot] = null
+    })
+  }
+
   useEffect(() => {
     saveWeekPlan(weekPlan)
   }, [weekPlan])
@@ -106,8 +148,53 @@ export const MealPlanPage = () => {
       if (swipeAnimationTimeoutRef.current) {
         window.clearTimeout(swipeAnimationTimeoutRef.current)
       }
+      clearNotificationTimers()
     }
   }, [])
+
+  useEffect(() => {
+    saveMealNotificationsEnabled(notificationsEnabled)
+  }, [notificationsEnabled])
+
+  useEffect(() => {
+    notificationsEnabledRef.current = notificationsEnabled
+  }, [notificationsEnabled])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return
+
+    if (Notification.permission !== 'granted') {
+      clearNotificationTimers()
+      return
+    }
+
+    if (!notificationsEnabled) {
+      clearNotificationTimers()
+      return
+    }
+
+    const scheduleSlotReminder = (slot: MealSlot) => {
+      const config = mealSlotConfigs.find((item) => item.slot === slot)
+      if (!config) return
+
+      const nextReminderDate = getNextReminderDate(config.time, 5)
+      const delay = Math.max(nextReminderDate.getTime() - Date.now(), 0)
+
+      notificationTimersRef.current[slot] = window.setTimeout(() => {
+        if (Notification.permission !== 'granted' || !notificationsEnabledRef.current) return
+
+        new Notification('My Nutririon', {
+          body: `${config.label} em 5 minutos (${config.time}).`,
+          tag: `meal-reminder-${slot}`,
+        })
+
+        scheduleSlotReminder(slot)
+      }, delay)
+    }
+
+    clearNotificationTimers()
+    slotOrder.forEach((slot) => scheduleSlotReminder(slot))
+  }, [notificationsEnabled])
 
   const updateDayPlan = (dayNumber: number, updater: (dayPlan: DayPlan) => DayPlan): boolean => {
     let changed = false
@@ -318,6 +405,37 @@ export const MealPlanPage = () => {
     startDayTransition(value, null)
   }
 
+  const handleNotificationsSubscription = async () => {
+    if (!('Notification' in window)) {
+      toast.error('Este navegador não suporta notificações.')
+      return
+    }
+
+    if (notificationsEnabled) {
+      setNotificationsEnabled(false)
+      toast.success('Notificações desativadas.')
+      return
+    }
+
+    if (Notification.permission === 'denied') {
+      toast.error('Notificações bloqueadas no navegador. Ative nas permissões do site.')
+      return
+    }
+
+    let permission: NotificationPermission = Notification.permission
+    if (permission !== 'granted') {
+      permission = await Notification.requestPermission()
+    }
+
+    if (permission !== 'granted') {
+      toast.error('Permissão de notificação não concedida.')
+      return
+    }
+
+    setNotificationsEnabled(true)
+    toast.success('Lembretes ativados: você será notificado 5 min antes de cada refeição.')
+  }
+
   return (
     <main className="mx-auto w-full max-w-6xl space-y-5 px-3 pb-24 pt-4 sm:px-4 sm:pb-6 sm:pt-6 md:space-y-6 md:px-6 md:pb-8 md:pt-8">
       <header className="space-y-4 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
@@ -348,6 +466,21 @@ export const MealPlanPage = () => {
           <ExportPdfButton className="h-10 sm:h-9" label="Exportar semana em PDF" onExport={handleExportWeek} />
         </div>
       </header>
+
+      <div className="no-export rounded-2xl border border-border bg-card p-3 shadow-sm sm:p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-card-foreground">Lembretes de refeição</p>
+            <p className="text-xs text-muted-foreground">
+              Ative para receber notificações 5 minutos antes de 08:00, 12:30, 16:30 e 20:00.
+            </p>
+          </div>
+          <Button className="h-10 w-full sm:w-auto" onClick={() => void handleNotificationsSubscription()} type="button" variant="outline">
+            {notificationsEnabled ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+            {notificationsEnabled ? 'Desativar notificações' : 'Inscrever notificações'}
+          </Button>
+        </div>
+      </div>
 
       <DayTabs onValueChange={handleTabValueChange} value={tabValue}>
         {weekPlan.days.map((dayPlan) => (

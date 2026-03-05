@@ -116,6 +116,8 @@ export const DayView = ({
               key={slot}
               label={slotConfig.label}
               locked={dayPlan.locked[slot]}
+              preparationLabel={meal.preparationLabel}
+              preparationUrl={meal.preparationUrl}
               onExport={() => {
                 handleExportCard(slot).catch(() => {
                   toast.error('Não foi possível exportar este card')

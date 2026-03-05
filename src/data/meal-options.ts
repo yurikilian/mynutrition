@@ -163,6 +163,8 @@ export const snackBaseOptions: MealOption[] = [
     items: [
       '2 fatias de pão integral (60 g) + creme de ricota light (2 colheres de sopa, 30 g) + atum light (3 colheres de sopa, 60 g) + salada (1 xícara, 50 g)',
     ],
+    preparationUrl: 'https://www.google.com/search?q=sandu%C3%ADche+integral+com+atum+receita',
+    preparationLabel: 'Ver preparo do sanduíche',
   },
   {
     id: 'snack_base_crepioca_ricotta',
@@ -172,6 +174,8 @@ export const snackBaseOptions: MealOption[] = [
     items: [
       'Crepioca (1 unidade média, 90 g: 1 ovo + 2 colheres de sopa de tapioca) + creme de ricota light (2 colheres de sopa, 30 g) + salada (1 xícara, 50 g)',
     ],
+    preparationUrl: 'https://www.google.com/search?q=crepioca+com+ricota+receita',
+    preparationLabel: 'Ver preparo da crepioca',
   },
   {
     id: 'snack_base_acai_zero_granola',
@@ -282,6 +286,8 @@ export const dinnerOptions: MealOption[] = [
       'Sopa de legumes com frango (1 prato fundo, 300 ml; frango desfiado 100 g)',
       'Mistura de grãos (1 colher de sopa, 10 g)',
     ],
+    preparationUrl: 'https://www.google.com/search?q=sopa+de+legumes+com+frango+receita',
+    preparationLabel: 'Ver preparo da sopa',
   },
   {
     id: 'dinner_salad_lean_meat',
@@ -299,6 +305,8 @@ export const dinnerOptions: MealOption[] = [
     title: 'Omelete de legumes + saladas',
     kcal: 340,
     items: ['Omelete de legumes com queijo (2 ovos + 30 g queijo, 180 g)', 'Saladas (2 xícaras, 160 g)'],
+    preparationUrl: 'https://www.google.com/search?q=omelete+de+legumes+com+queijo+receita',
+    preparationLabel: 'Ver preparo do omelete',
   },
   {
     id: 'dinner_eggplant_chicken_salad',
@@ -306,6 +314,8 @@ export const dinnerOptions: MealOption[] = [
     title: 'Berinjela recheada + saladas',
     kcal: 340,
     items: ['Berinjela recheada com frango (1/2 berinjela grande, 250 g total; frango 100 g)', 'Saladas (1 xícara, 80 g)'],
+    preparationUrl: 'https://www.google.com/search?q=berinjela+recheada+com+frango+receita',
+    preparationLabel: 'Ver preparo da berinjela recheada',
   },
   {
     id: 'dinner_rap10_chicken_juice',
@@ -313,6 +323,8 @@ export const dinnerOptions: MealOption[] = [
     title: 'Rap 10 + frango + suco natural',
     kcal: 340,
     items: ['Suco natural (1 copo, 200 ml)', 'Rap 10 integral (1 unidade, 40 g)', 'Frango desfiado (100 g)', 'Saladas (1 xícara, 80 g)'],
+    preparationUrl: 'https://www.google.com/search?q=rap10+integral+frango+desfiado+receita',
+    preparationLabel: 'Ver preparo do rap 10',
   },
   {
     id: 'dinner_pita_lean_filling_salad',
@@ -320,6 +332,8 @@ export const dinnerOptions: MealOption[] = [
     title: 'Pão sírio integral + recheio magro + saladas',
     kcal: 340,
     items: ['Pão sírio integral (1 unidade, 60 g)', 'Recheio magro (100 g)', 'Saladas (1 xícara, 80 g)'],
+    preparationUrl: 'https://www.google.com/search?q=p%C3%A3o+s%C3%ADrio+integral+recheio+magro+receita',
+    preparationLabel: 'Ver preparo do pão sírio recheado',
   },
   {
     id: 'dinner_veggie_souffle_salad',
@@ -327,6 +341,8 @@ export const dinnerOptions: MealOption[] = [
     title: 'Suflê de legumes + saladas',
     kcal: 340,
     items: ['Suflê de legumes (1 fatia média, 180 g)', 'Saladas (1 xícara, 80 g)'],
+    preparationUrl: 'https://www.google.com/search?q=sufl%C3%AA+de+legumes+receita',
+    preparationLabel: 'Ver preparo do suflê',
   },
 ]
 
@@ -387,6 +403,8 @@ export const resolveBreakfastMeal = (breakfastId: string): ResolvedMeal => {
     title: breakfast.title,
     kcal: 250,
     items: breakfast.items,
+    preparationUrl: breakfast.preparationUrl,
+    preparationLabel: breakfast.preparationLabel,
   }
 }
 
@@ -424,6 +442,8 @@ export const resolveSnackMeal = (dayPlan: DayPlan): ResolvedMeal => {
       `Fruta (90 kcal): ${fruit.title}`,
       `Lácteo/bebida (70 kcal): ${dairy.title}`,
     ],
+    preparationUrl: base.preparationUrl,
+    preparationLabel: base.preparationLabel,
   }
 }
 
@@ -435,6 +455,8 @@ export const resolveDinnerMeal = (dinnerId: string): ResolvedMeal => {
     title: dinner.title,
     kcal: 340,
     items: dinner.items,
+    preparationUrl: dinner.preparationUrl,
+    preparationLabel: dinner.preparationLabel,
   }
 }
 
