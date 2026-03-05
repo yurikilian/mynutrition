@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: oklch(0.9994 0.0026 106.45);
+    --foreground: oklch(0.3097 0.0251 241.69);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.3097 0.0251 241.69);
+    --popover: oklch(0.9994 0.0026 106.45);
+    --popover-foreground: oklch(0.3097 0.0251 241.69);
+    --primary: oklch(0.5105 0.1218 31.38);
+    --primary-foreground: oklch(0.9994 0.0026 106.45);
+    --secondary: oklch(0.9488 0.0266 74.76);
+    --secondary-foreground: oklch(0.5105 0.1218 31.38);
+    --muted: oklch(0.98 0.02 74.75);
+    --muted-foreground: oklch(0.3097 0.0251 241.69);
+    --accent: oklch(0.9255 0.0315 27.42);
+    --accent-foreground: oklch(0.5105 0.1218 31.38);
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(1 0 0);
+    --border: oklch(0.9488 0.0266 74.76);
+    --input: oklch(0.9488 0.0266 74.76);
+    --ring: oklch(0.5105 0.1218 31.38);
+    --chart-1: oklch(0.924 0.12 95.746);
+    --chart-2: oklch(0.879 0.169 91.605);
+    --chart-3: oklch(0.828 0.189 84.429);
+    --chart-4: oklch(0.769 0.188 70.08);
+    --chart-5: oklch(0.555 0.163 48.998);
+    --radius: 0.725rem;
+
+    --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+      'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+      'Courier New', monospace;
+    --tracking-normal: 0em;
+  }
+
+  .dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.269 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.371 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --destructive-foreground: oklch(0.985 0 0);
+    --border: oklch(0.275 0 0);
+    --input: oklch(0.325 0 0);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.81 0.1 252);
+    --chart-2: oklch(0.62 0.19 260);
+    --chart-3: oklch(0.55 0.22 263);
+    --chart-4: oklch(0.49 0.22 264);
+    --chart-5: oklch(0.42 0.18 266);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+    letter-spacing: var(--tracking-normal);
+    margin: 0;
+    min-width: 320px;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+}
+
+@media print {
+  .no-export {
+    display: none !important;
+  }
+}
+
+.swipe-enter-from-right {
+  animation: day-swipe-enter-from-right 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+}
+
+.swipe-enter-from-left {
+  animation: day-swipe-enter-from-left 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+}
+
+@keyframes day-swipe-enter-from-right {
+  from {
+    opacity: 0.45;
+    transform: translate3d(20px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes day-swipe-enter-from-left {
+  from {
+    opacity: 0.45;
+    transform: translate3d(-20px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
