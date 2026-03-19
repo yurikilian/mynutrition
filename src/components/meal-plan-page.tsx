@@ -25,7 +25,16 @@ import { shuffleDay, shuffleMeal, shuffleWeek, swapMealEquivalent } from '@/lib/
 import { loadWeekPlan, saveWeekPlan } from '@/lib/storage'
 import type { DayPlan, MealSlot, SwapMealEquivalentParams, WeekPlan } from '@/types/meal'
 
-const slotOrder: MealSlot[] = ['breakfast', 'lunch', 'snack', 'dinner']
+const slotOrder: MealSlot[] = [
+  'breakfast',
+  'morningSnack',
+  'lunch',
+  'afternoonFruit',
+  'afternoonDairy',
+  'afternoonSnack',
+  'dinner',
+  'supper',
+]
 
 interface StaticDaySectionProps {
   dayPlan: DayPlan
@@ -116,9 +125,13 @@ export const MealPlanPage = () => {
   const notificationsEnabledRef = useRef(notificationsEnabled)
   const notificationTimersRef = useRef<Record<MealSlot, number | null>>({
     breakfast: null,
+    morningSnack: null,
     lunch: null,
-    snack: null,
+    afternoonFruit: null,
+    afternoonDairy: null,
+    afternoonSnack: null,
     dinner: null,
+    supper: null,
   })
   const weekExportRefs = useRef<Record<number, HTMLDivElement | null>>({
     1: null,
@@ -230,17 +243,6 @@ export const MealPlanPage = () => {
     }
 
     toast.success('Refeição atualizada com equivalência calórica')
-  }
-
-  const handleShuffleSnackCombo = (dayNumber: number) => {
-    const changed = updateDayPlan(dayNumber, (dayPlan) => shuffleMeal(dayPlan, 'snack'))
-
-    if (!changed) {
-      toast.info('Lanche fixado ou sem alternativa disponível')
-      return
-    }
-
-    toast.success('Nova combinação de lanche gerada')
   }
 
   const handleToggleLock = (dayNumber: number, slot: MealSlot) => {
@@ -430,13 +432,13 @@ export const MealPlanPage = () => {
             <h1 className="text-xl font-semibold leading-tight text-card-foreground sm:text-2xl md:text-3xl">Plano alimentar de 7 dias</h1>
           </div>
           <Badge className="rounded-full bg-primary px-3 py-1 text-sm font-semibold leading-none text-primary-foreground hover:bg-primary">
-            Meta: 1670 kcal/dia
+            Meta: 1970 kcal/dia
           </Badge>
         </div>
 
         <div className="grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
-          <p>Homem, 35 anos, 92,4 kg, 1,69 m, rotina sedentária.</p>
-          <p>TMB: 1810,25 kcal/dia • Gasto sedentário estimado: 2172,3 kcal/dia.</p>
+          <p>Plano alimentar hipocalórico e hiperproteico do PDF de 28/01/2018.</p>
+          <p>Peso: 103,4 kg • IMC: 35,56 kg/m2 • VCT: 1970 kcal/dia.</p>
         </div>
 
         <div className="no-export hidden grid-cols-1 gap-2 border-t border-border pt-3 sm:flex sm:flex-wrap">
@@ -457,7 +459,7 @@ export const MealPlanPage = () => {
           <div className="space-y-1">
             <p className="text-sm font-semibold text-card-foreground">Lembretes de refeição</p>
             <p className="text-xs text-muted-foreground">
-              Ative para receber notificações 5 minutos antes de 08:00, 12:30, 16:30 e 20:00.
+              Ative para receber notificações 5 minutos antes de cada horário do plano do PDF.
             </p>
           </div>
           <Button className="h-10 w-full sm:w-auto" onClick={() => void handleNotificationsSubscription()} type="button" variant="outline">
@@ -486,7 +488,6 @@ export const MealPlanPage = () => {
                 onResetDay={handleResetDay}
                 onShuffleDay={handleShuffleDay}
                 onShuffleMeal={handleShuffleMeal}
-                onShuffleSnackCombo={handleShuffleSnackCombo}
                 onSwapMeal={handleSwapMeal}
                 onToggleLock={handleToggleLock}
               />

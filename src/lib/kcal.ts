@@ -1,35 +1,32 @@
-import { mealCatalogById } from '@/data/meal-options'
-import type { DayPlan, MealSlot, SnackSelection } from '@/types/meal'
+import { mealCatalogById, mealSlotConfigs } from '@/data/meal-options'
+import type { DayPlan, DirectMealSlot, MealSlot } from '@/types/meal'
 
-const slotKcal: Record<MealSlot, number> = {
-  breakfast: 250,
-  lunch: 670,
-  snack: 410,
-  dinner: 340,
-}
+const slotKcal = mealSlotConfigs.reduce<Record<MealSlot, number>>((acc, slotConfig) => {
+  acc[slotConfig.slot] = slotConfig.kcal
+  return acc
+}, {} as Record<MealSlot, number>)
+
+const directSlots: DirectMealSlot[] = [
+  'breakfast',
+  'morningSnack',
+  'afternoonFruit',
+  'afternoonDairy',
+  'afternoonSnack',
+  'dinner',
+  'supper',
+]
 
 export const getMealKcal = (slot: MealSlot): number => slotKcal[slot]
 
 export const getDayTotalKcal = (): number =>
   Object.values(slotKcal).reduce((sum, value) => sum + value, 0)
 
-export const isValidSnackSelection = (snack: SnackSelection): boolean => {
-  const base = mealCatalogById.snack.base250[snack.baseId]
-  const fruit = mealCatalogById.snack.fruit90[snack.fruitId]
-  const dairy = mealCatalogById.snack.dairy70[snack.dairyId]
-
-  if (!base || !fruit || !dairy) return false
-
-  return base.kcal + fruit.kcal + dairy.kcal === slotKcal.snack
-}
-
 export const validateDayPlan = (dayPlan: DayPlan): boolean => {
-  const breakfastExists = Boolean(mealCatalogById.breakfast[dayPlan.meals.breakfastId])
-  const dinnerExists = Boolean(mealCatalogById.dinner[dayPlan.meals.dinnerId])
+  const directMealsExist = directSlots.every((slot) => Boolean(mealCatalogById.direct[slot][dayPlan.meals.direct[slot]]))
   const lunchExists =
     Boolean(mealCatalogById.lunch.starch[dayPlan.meals.lunch.starchId]) &&
     Boolean(mealCatalogById.lunch.legume[dayPlan.meals.lunch.legumeId]) &&
     Boolean(mealCatalogById.lunch.protein[dayPlan.meals.lunch.proteinId])
 
-  return breakfastExists && dinnerExists && lunchExists && isValidSnackSelection(dayPlan.meals.snack)
+  return directMealsExist && lunchExists
 }

@@ -16,7 +16,6 @@ interface DayViewProps {
   dayPlan: DayPlan
   onShuffleMeal: (day: number, slot: MealSlot) => void
   onSwapMeal: (day: number, params: SwapMealEquivalentParams) => void
-  onShuffleSnackCombo: (day: number) => void
   onToggleLock: (day: number, slot: MealSlot) => void
   onShuffleDay: (day: number) => void
   onResetDay: (day: number) => void
@@ -26,7 +25,6 @@ export const DayView = ({
   dayPlan,
   onShuffleMeal,
   onSwapMeal,
-  onShuffleSnackCombo,
   onToggleLock,
   onShuffleDay,
   onResetDay,
@@ -34,9 +32,13 @@ export const DayView = ({
   const dayRef = useRef<HTMLDivElement | null>(null)
   const cardRefs = useRef<Record<MealSlot, HTMLDivElement | null>>({
     breakfast: null,
+    morningSnack: null,
     lunch: null,
-    snack: null,
+    afternoonFruit: null,
+    afternoonDairy: null,
+    afternoonSnack: null,
     dinner: null,
+    supper: null,
   })
 
   const [swapSlot, setSwapSlot] = useState<MealSlot | null>(null)
@@ -55,9 +57,13 @@ export const DayView = ({
   const meals = useMemo(
     () => ({
       breakfast: resolveMealBySlot(dayPlan, 'breakfast'),
+      morningSnack: resolveMealBySlot(dayPlan, 'morningSnack'),
       lunch: resolveMealBySlot(dayPlan, 'lunch'),
-      snack: resolveMealBySlot(dayPlan, 'snack'),
+      afternoonFruit: resolveMealBySlot(dayPlan, 'afternoonFruit'),
+      afternoonDairy: resolveMealBySlot(dayPlan, 'afternoonDairy'),
+      afternoonSnack: resolveMealBySlot(dayPlan, 'afternoonSnack'),
       dinner: resolveMealBySlot(dayPlan, 'dinner'),
+      supper: resolveMealBySlot(dayPlan, 'supper'),
     }),
     [dayPlan],
   )
@@ -142,10 +148,6 @@ export const DayView = ({
           onOpenChange={(nextOpen) => {
             if (!nextOpen) setSwapSlot(null)
           }}
-          onShuffleSnackCombo={() => {
-            onShuffleSnackCombo(dayPlan.day)
-            setHighlightedSlot('snack')
-          }}
           onSwapMeal={(params) => {
             onSwapMeal(dayPlan.day, params)
             setHighlightedSlot(params.slot)
@@ -175,12 +177,20 @@ export const DayView = ({
 const slotConfigLabel = (slot: MealSlot): string => {
   switch (slot) {
     case 'breakfast':
-      return 'café da manhã'
+      return 'desjejum'
+    case 'morningSnack':
+      return 'lanche da manhã'
     case 'lunch':
       return 'almoço'
-    case 'snack':
-      return 'lanche'
+    case 'afternoonFruit':
+      return 'lanche da tarde 1'
+    case 'afternoonDairy':
+      return 'lanche da tarde 2'
+    case 'afternoonSnack':
+      return 'lanche da tarde 3'
     case 'dinner':
       return 'jantar'
+    case 'supper':
+      return 'ceia'
   }
 }

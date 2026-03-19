@@ -1,14 +1,5 @@
 import { mealCatalog } from '@/data/meal-options'
-import type {
-  DayPlan,
-  LunchSelection,
-  MealOption,
-  MealSlot,
-  SnackPartSlot,
-  SnackSelection,
-  SwapMealEquivalentParams,
-  WeekPlan,
-} from '@/types/meal'
+import type { DayPlan, DirectMealSlot, LunchSelection, MealOption, MealSlot, SwapMealEquivalentParams, WeekPlan } from '@/types/meal'
 
 const randomIndex = (length: number): number => Math.floor(Math.random() * length)
 
@@ -72,138 +63,41 @@ const shuffleLunch = (current: LunchSelection): LunchSelection => {
   return next
 }
 
-const shuffleSnack = (current: SnackSelection): SnackSelection => {
-  const base = pickRandomDifferent(mealCatalog.snack.base250, current.baseId)
-  const fruit = pickRandomDifferent(mealCatalog.snack.fruit90, current.fruitId)
-  const dairy = pickRandomDifferent(mealCatalog.snack.dairy70, current.dairyId)
-
-  let next: SnackSelection = {
-    baseId: base.id,
-    fruitId: fruit.id,
-    dairyId: dairy.id,
-  }
-
-  const unchanged =
-    next.baseId === current.baseId &&
-    next.fruitId === current.fruitId &&
-    next.dairyId === current.dairyId
-
-  if (unchanged) {
-    if (hasAlternative(mealCatalog.snack.base250, current.baseId)) {
-      next = { ...next, baseId: pickRandomDifferent(mealCatalog.snack.base250, current.baseId).id }
-    } else if (hasAlternative(mealCatalog.snack.fruit90, current.fruitId)) {
-      next = { ...next, fruitId: pickRandomDifferent(mealCatalog.snack.fruit90, current.fruitId).id }
-    } else if (hasAlternative(mealCatalog.snack.dairy70, current.dairyId)) {
-      next = { ...next, dairyId: pickRandomDifferent(mealCatalog.snack.dairy70, current.dairyId).id }
-    }
-  }
-
-  return next
-}
-
-export const shuffleMeal = (dayPlan: DayPlan, slot: MealSlot): DayPlan => {
-  if (dayPlan.locked[slot]) return dayPlan
-
-  switch (slot) {
-    case 'breakfast': {
-      const nextBreakfast = pickRandomDifferent(mealCatalog.breakfast, dayPlan.meals.breakfastId)
-      return {
-        ...dayPlan,
-        meals: {
-          ...dayPlan.meals,
-          breakfastId: nextBreakfast.id,
-        },
-      }
-    }
-    case 'lunch':
-      return {
-        ...dayPlan,
-        meals: {
-          ...dayPlan.meals,
-          lunch: shuffleLunch(dayPlan.meals.lunch),
-        },
-      }
-    case 'snack':
-      return {
-        ...dayPlan,
-        meals: {
-          ...dayPlan.meals,
-          snack: shuffleSnack(dayPlan.meals.snack),
-        },
-      }
-    case 'dinner': {
-      const nextDinner = pickRandomDifferent(mealCatalog.dinner, dayPlan.meals.dinnerId)
-      return {
-        ...dayPlan,
-        meals: {
-          ...dayPlan.meals,
-          dinnerId: nextDinner.id,
-        },
-      }
-    }
-  }
-}
-
-export const swapSnackPart = (
-  dayPlan: DayPlan,
-  partSlot: SnackPartSlot,
-  newId: string,
-): DayPlan => {
-  if (dayPlan.locked.snack) return dayPlan
-
-  if (partSlot === 'base250' && !mealCatalog.snack.base250.some((option) => option.id === newId)) {
-    return dayPlan
-  }
-
-  if (partSlot === 'fruit90' && !mealCatalog.snack.fruit90.some((option) => option.id === newId)) {
-    return dayPlan
-  }
-
-  if (partSlot === 'dairy70' && !mealCatalog.snack.dairy70.some((option) => option.id === newId)) {
-    return dayPlan
-  }
-
-  const nextSnack = { ...dayPlan.meals.snack }
-
-  if (partSlot === 'base250') nextSnack.baseId = newId
-  if (partSlot === 'fruit90') nextSnack.fruitId = newId
-  if (partSlot === 'dairy70') nextSnack.dairyId = newId
+const shuffleDirectMeal = (dayPlan: DayPlan, slot: DirectMealSlot): DayPlan => {
+  const currentId = dayPlan.meals.direct[slot]
+  const nextOption = pickRandomDifferent(mealCatalog.direct[slot], currentId)
 
   return {
     ...dayPlan,
     meals: {
       ...dayPlan.meals,
-      snack: nextSnack,
+      direct: {
+        ...dayPlan.meals.direct,
+        [slot]: nextOption.id,
+      },
+      lunch: dayPlan.meals.lunch,
     },
   }
 }
 
+export const shuffleMeal = (dayPlan: DayPlan, slot: MealSlot): DayPlan => {
+  if (dayPlan.locked[slot]) return dayPlan
+
+  if (slot === 'lunch') {
+    return {
+      ...dayPlan,
+      meals: {
+        ...dayPlan.meals,
+        lunch: shuffleLunch(dayPlan.meals.lunch),
+      },
+    }
+  }
+
+  return shuffleDirectMeal(dayPlan, slot)
+}
+
 export const swapMealEquivalent = (dayPlan: DayPlan, params: SwapMealEquivalentParams): DayPlan => {
   if (dayPlan.locked[params.slot]) return dayPlan
-
-  if (params.slot === 'breakfast') {
-    if (!mealCatalog.breakfast.some((option) => option.id === params.optionId)) return dayPlan
-
-    return {
-      ...dayPlan,
-      meals: {
-        ...dayPlan.meals,
-        breakfastId: params.optionId,
-      },
-    }
-  }
-
-  if (params.slot === 'dinner') {
-    if (!mealCatalog.dinner.some((option) => option.id === params.optionId)) return dayPlan
-
-    return {
-      ...dayPlan,
-      meals: {
-        ...dayPlan.meals,
-        dinnerId: params.optionId,
-      },
-    }
-  }
 
   if (params.slot === 'lunch') {
     const nextLunch = { ...dayPlan.meals.lunch }
@@ -232,17 +126,29 @@ export const swapMealEquivalent = (dayPlan: DayPlan, params: SwapMealEquivalentP
     }
   }
 
-  return swapSnackPart(dayPlan, params.part, params.optionId)
+  if (!mealCatalog.direct[params.slot].some((option) => option.id === params.optionId)) return dayPlan
+
+  return {
+    ...dayPlan,
+    meals: {
+      ...dayPlan.meals,
+      direct: {
+        ...dayPlan.meals.direct,
+        [params.slot]: params.optionId,
+      },
+      lunch: dayPlan.meals.lunch,
+    },
+  }
 }
 
-export const shuffleDay = (dayPlan: DayPlan): DayPlan => {
-  const slots: MealSlot[] = ['breakfast', 'lunch', 'snack', 'dinner']
-
-  return slots.reduce((currentDay, slot) => {
-    if (currentDay.locked[slot]) return currentDay
-    return shuffleMeal(currentDay, slot)
-  }, dayPlan)
-}
+export const shuffleDay = (dayPlan: DayPlan): DayPlan =>
+  (['breakfast', 'morningSnack', 'lunch', 'afternoonFruit', 'afternoonDairy', 'afternoonSnack', 'dinner', 'supper'] as MealSlot[]).reduce(
+    (currentDay, slot) => {
+      if (currentDay.locked[slot]) return currentDay
+      return shuffleMeal(currentDay, slot)
+    },
+    dayPlan,
+  )
 
 export const shuffleWeek = (weekPlan: WeekPlan): WeekPlan => ({
   days: weekPlan.days.map((day) => shuffleDay(day)),

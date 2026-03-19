@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 
-import { mealCatalog } from '@/data/meal-options'
-import type { DayPlan, MealSlot, SwapMealEquivalentParams } from '@/types/meal'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -17,6 +15,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer'
+import { Separator } from '@/components/ui/separator'
 import {
   Select,
   SelectContent,
@@ -24,7 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
+import { mealCatalog } from '@/data/meal-options'
+import type { DayPlan, DirectMealSlot, MealSlot, SwapMealEquivalentParams } from '@/types/meal'
 
 interface MealSwapDrawerProps {
   open: boolean
@@ -32,7 +32,6 @@ interface MealSwapDrawerProps {
   slot: MealSlot
   dayPlan: DayPlan
   onSwapMeal: (params: SwapMealEquivalentParams) => void
-  onShuffleSnackCombo: () => void
 }
 
 const useMediaQuery = (query: string): boolean => {
@@ -54,30 +53,31 @@ const SectionLabel = ({ children }: { children: string }) => (
   <p className="text-sm font-semibold text-foreground">{children}</p>
 )
 
+const directSlotLabels: Record<DirectMealSlot, string> = {
+  breakfast: 'Trocar desjejum',
+  morningSnack: 'Trocar lanche da manhã',
+  afternoonFruit: 'Trocar lanche da tarde 1',
+  afternoonDairy: 'Trocar lanche da tarde 2',
+  afternoonSnack: 'Trocar lanche da tarde 3',
+  dinner: 'Trocar jantar',
+  supper: 'Trocar ceia',
+}
+
 export const MealSwapDrawer = ({
   open,
   onOpenChange,
   slot,
   dayPlan,
   onSwapMeal,
-  onShuffleSnackCombo,
 }: MealSwapDrawerProps) => {
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const isLocked = dayPlan.locked[slot]
 
-  const title =
-    slot === 'breakfast'
-      ? 'Trocar café da manhã'
-      : slot === 'lunch'
-        ? 'Trocar partes do almoço'
-        : slot === 'snack'
-          ? 'Trocar partes do lanche'
-          : 'Trocar jantar'
-
+  const title = slot === 'lunch' ? 'Trocar partes do almoço' : directSlotLabels[slot]
   const description =
-    slot === 'snack'
-      ? 'Mantenha a estrutura de 410 kcal editando base, fruta e lácteo separadamente.'
-      : 'Somente opções equivalentes são exibidas para preservar as calorias do horário.'
+    slot === 'lunch'
+      ? 'Ajuste amido, leguminosa e proteína mantendo a estrutura do plano do PDF.'
+      : 'Somente opções equivalentes deste horário são exibidas para manter o plano.'
 
   const content = (
     <div className="space-y-4 px-4 pb-4 md:px-0 md:pb-0">
@@ -87,44 +87,22 @@ export const MealSwapDrawer = ({
         </p>
       ) : null}
 
-      {slot === 'breakfast'
-        ? mealCatalog.breakfast.map((option) => {
-            const selected = dayPlan.meals.breakfastId === option.id
+      {slot !== 'lunch'
+        ? mealCatalog.direct[slot].map((option) => {
+            const selected = dayPlan.meals.direct[slot] === option.id
 
             return (
               <Button
                 className="h-auto min-h-11 w-full justify-start whitespace-normal py-3 text-left"
                 disabled={isLocked || selected}
                 key={option.id}
-                onClick={() => onSwapMeal({ slot: 'breakfast', optionId: option.id })}
+                onClick={() => onSwapMeal({ slot, optionId: option.id })}
                 type="button"
                 variant={selected ? 'default' : 'outline'}
               >
                 <span className="block">
                   <span className="block font-medium">{option.title}</span>
-                  <span className="block text-xs opacity-80">250 kcal</span>
-                </span>
-              </Button>
-            )
-          })
-        : null}
-
-      {slot === 'dinner'
-        ? mealCatalog.dinner.map((option) => {
-            const selected = dayPlan.meals.dinnerId === option.id
-
-            return (
-              <Button
-                className="h-auto min-h-11 w-full justify-start whitespace-normal py-3 text-left"
-                disabled={isLocked || selected}
-                key={option.id}
-                onClick={() => onSwapMeal({ slot: 'dinner', optionId: option.id })}
-                type="button"
-                variant={selected ? 'default' : 'outline'}
-              >
-                <span className="block">
-                  <span className="block font-medium">{option.title}</span>
-                  <span className="block text-xs opacity-80">340 kcal</span>
+                  <span className="block text-xs opacity-80">{option.kcal} kcal</span>
                 </span>
               </Button>
             )
@@ -174,7 +152,7 @@ export const MealSwapDrawer = ({
           </div>
 
           <div className="space-y-2">
-            <SectionLabel>Proteína (200 g)</SectionLabel>
+            <SectionLabel>Carne magra (200 g)</SectionLabel>
             <Select
               disabled={isLocked}
               onValueChange={(value) => onSwapMeal({ slot: 'lunch', part: 'proteinId', optionId: value })}
@@ -192,82 +170,11 @@ export const MealSwapDrawer = ({
               </SelectContent>
             </Select>
           </div>
-        </div>
-      ) : null}
-
-      {slot === 'snack' ? (
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <SectionLabel>Base (250 kcal)</SectionLabel>
-            <Select
-              disabled={isLocked}
-              onValueChange={(value) => onSwapMeal({ slot: 'snack', part: 'base250', optionId: value })}
-              value={dayPlan.meals.snack.baseId}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione a base" />
-              </SelectTrigger>
-              <SelectContent>
-                {mealCatalog.snack.base250.map((option) => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {option.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <SectionLabel>Fruta (90 kcal)</SectionLabel>
-            <Select
-              disabled={isLocked}
-              onValueChange={(value) => onSwapMeal({ slot: 'snack', part: 'fruit90', optionId: value })}
-              value={dayPlan.meals.snack.fruitId}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione a fruta" />
-              </SelectTrigger>
-              <SelectContent>
-                {mealCatalog.snack.fruit90.map((option) => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {option.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <SectionLabel>Lácteo / bebida (70 kcal)</SectionLabel>
-            <Select
-              disabled={isLocked}
-              onValueChange={(value) => onSwapMeal({ slot: 'snack', part: 'dairy70', optionId: value })}
-              value={dayPlan.meals.snack.dairyId}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o lácteo / bebida" />
-              </SelectTrigger>
-              <SelectContent>
-                {mealCatalog.snack.dairy70.map((option) => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {option.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
           <Separator />
-
-          <Button
-            className="h-11 w-full"
-            disabled={isLocked}
-            onClick={onShuffleSnackCombo}
-            type="button"
-            variant="secondary"
-          >
-            Gerar nova combinação válida de 410 kcal
-          </Button>
+          <p className="text-xs text-muted-foreground">
+            Saladas cruas ou cozidas permanecem livres, conforme o plano original.
+          </p>
         </div>
       ) : null}
     </div>

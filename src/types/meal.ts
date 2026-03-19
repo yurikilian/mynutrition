@@ -1,10 +1,18 @@
-export type MealSlot = 'breakfast' | 'lunch' | 'snack' | 'dinner'
+export type MealSlot =
+  | 'breakfast'
+  | 'morningSnack'
+  | 'lunch'
+  | 'afternoonFruit'
+  | 'afternoonDairy'
+  | 'afternoonSnack'
+  | 'dinner'
+  | 'supper'
 
-export type SnackPartSlot = 'base250' | 'fruit90' | 'dairy70'
+export type DirectMealSlot = Exclude<MealSlot, 'lunch'>
 
 export interface MealOption {
   id: string
-  slot: MealSlot | SnackPartSlot
+  slot: MealSlot
   title: string
   kcal: number
   items: string[]
@@ -19,17 +27,9 @@ export interface LunchSelection {
   proteinId: string
 }
 
-export interface SnackSelection {
-  baseId: string
-  fruitId: string
-  dairyId: string
-}
-
 export interface DayMealSelection {
-  breakfastId: string
+  direct: Record<DirectMealSlot, string>
   lunch: LunchSelection
-  snack: SnackSelection
-  dinnerId: string
 }
 
 export interface DayPlan {
@@ -58,39 +58,25 @@ export interface ResolvedMeal {
 }
 
 export interface MealCatalog {
-  breakfast: MealOption[]
+  direct: Record<DirectMealSlot, MealOption[]>
   lunch: {
     starch: MealOption[]
     legume: MealOption[]
     protein: MealOption[]
   }
-  snack: {
-    base250: MealOption[]
-    fruit90: MealOption[]
-    dairy70: MealOption[]
-  }
-  dinner: MealOption[]
 }
 
 export interface MealCatalogById {
-  breakfast: Record<string, MealOption>
+  direct: Record<DirectMealSlot, Record<string, MealOption>>
   lunch: {
     starch: Record<string, MealOption>
     legume: Record<string, MealOption>
     protein: Record<string, MealOption>
   }
-  snack: {
-    base250: Record<string, MealOption>
-    fruit90: Record<string, MealOption>
-    dairy70: Record<string, MealOption>
-  }
-  dinner: Record<string, MealOption>
 }
 
 export type LunchPart = keyof LunchSelection
 
 export type SwapMealEquivalentParams =
-  | { slot: 'breakfast'; optionId: string }
-  | { slot: 'dinner'; optionId: string }
+  | { slot: DirectMealSlot; optionId: string }
   | { slot: 'lunch'; part: LunchPart; optionId: string }
-  | { slot: 'snack'; part: SnackPartSlot; optionId: string }
